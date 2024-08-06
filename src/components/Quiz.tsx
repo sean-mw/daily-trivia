@@ -76,7 +76,7 @@ const Quiz: React.FC<QuizProps> = ({ questions }) => {
   }
 
   return (
-    <div className="flex min-h-screen flex-col items-center gap-10 my-20 mx-10">
+    <div className="flex min-h-screen flex-col items-center gap-10 py-20 px-10">
       <h2 className="text-2xl font-bold">
         SCORE: {score} / {questions.length}
       </h2>
