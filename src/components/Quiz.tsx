@@ -37,9 +37,12 @@ const Quiz: React.FC<QuizProps> = ({ questions }) => {
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
       const arrowKeys = ['ArrowUp', 'ArrowLeft', 'ArrowRight', 'ArrowDown']
-      const endOfQuiz = currentQuestionIndex >= questions.length
-      if (endOfQuiz || !arrowKeys.includes(event.key)) return
+      if (!arrowKeys.includes(event.key)) return
       event.preventDefault()
+      const endOfQuiz = currentQuestionIndex >= questions.length
+      if (endOfQuiz || selectedAnswer) {
+        return
+      }
       const index = arrowKeys.indexOf(event.key)
       handleAnswerSubmit(questions[currentQuestionIndex].answers[index])
     }
@@ -47,7 +50,7 @@ const Quiz: React.FC<QuizProps> = ({ questions }) => {
     return () => {
       document.removeEventListener('keydown', handleKeyDown)
     }
-  }, [currentQuestionIndex, handleAnswerSubmit, questions])
+  }, [currentQuestionIndex, handleAnswerSubmit, questions, selectedAnswer])
 
   const answerButton = (answer: string) => {
     let buttonClass =
