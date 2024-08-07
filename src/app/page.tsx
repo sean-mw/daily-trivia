@@ -1,27 +1,24 @@
 import Quiz from '@/components/Quiz'
+import prisma from '@/lib/prisma'
 
-export default function Game() {
-  const questions = [
-    {
-      question: 'What is the capital of France?',
-      answers: ['Paris', 'Berlin', 'Madrid', 'Rome'],
-      correctAnswer: 'Paris',
-    },
-    {
-      question: 'What is 3 + 5?',
-      answers: ['7', '8', '9', '10'],
-      correctAnswer: '8',
-    },
-    {
-      question: 'What is the largest planet in our solar system?',
-      answers: ['Earth', 'Jupiter', 'Saturn', 'Mars'],
-      correctAnswer: 'Jupiter',
-    },
-  ]
+export default async function Game() {
+  const now = new Date()
+  const month = now.getMonth()
+  const day = now.getDate()
+
+  const questionGroup = await prisma.dailyQuestionGroup.findUnique({
+    where: { month_day_unique: { month, day } },
+    include: { questions: true },
+  })
+
+  if (!questionGroup) {
+    // TODO: Handle this case (create error page?)
+    return <div>No question group found</div>
+  }
 
   return (
     <main>
-      <Quiz questions={questions} />
+      <Quiz questions={questionGroup.questions} />
     </main>
   )
 }

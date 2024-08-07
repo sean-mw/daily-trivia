@@ -1,0 +1,28 @@
+generator client {
+    provider = "prisma-client-js"
+}
+
+datasource db {
+    provider  = "postgresql"
+    url       = env("POSTGRES_PRISMA_URL") // uses connection pooling
+    directUrl = env("POSTGRES_URL_NON_POOLING") // uses a direct connection
+}
+
+model DailyQuestionGroup {
+    id        String     @id @default(cuid())
+    day       Int
+    month     Int
+    questions Question[]
+
+    @@unique([month, day], name: "month_day_unique")
+}
+
+model Question {
+    id                   String   @id @default(cuid())
+    question             String
+    answers              String[]
+    correctAnswer        String
+    dailyQuestionGroupId String
+
+    DailyQuestionGroup DailyQuestionGroup? @relation(fields: [dailyQuestionGroupId], references: [id])
+}
