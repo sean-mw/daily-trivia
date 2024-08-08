@@ -2,9 +2,6 @@
   "name": "daily-trivia",
   "version": "0.1.0",
   "private": true,
-  "prisma": {
-    "seed": "ts-node --compiler-options {\"module\":\"CommonJS\"} prisma/seed.ts"
-  },
   "scripts": {
     "dev": "next dev",
     "build": "next build",
@@ -19,6 +16,7 @@
     "@fortawesome/react-fontawesome": "^0.2.2",
     "@prisma/client": "^5.18.0",
     "next": "14.2.5",
+    "openai": "^4.55.1",
     "react": "^18",
     "react-dom": "^18"
   },

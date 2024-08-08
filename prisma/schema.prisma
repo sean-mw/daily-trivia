@@ -12,6 +12,7 @@ model DailyQuestionGroup {
     id        String     @id @default(cuid())
     day       Int
     month     Int
+    year      Int
     questions Question[]
 
     @@unique([month, day], name: "month_day_unique")
@@ -24,5 +25,5 @@ model Question {
     correctAnswer        String
     dailyQuestionGroupId String
 
-    DailyQuestionGroup DailyQuestionGroup? @relation(fields: [dailyQuestionGroupId], references: [id])
+    DailyQuestionGroup DailyQuestionGroup @relation(fields: [dailyQuestionGroupId], references: [id], onDelete: Cascade)
 }
