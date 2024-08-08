@@ -7,6 +7,9 @@ const config: Config = {
     './src/app/**/*.{js,ts,jsx,tsx,mdx}',
   ],
   plugins: [],
+  future: {
+    hoverOnlyWhenSupported: true,
+  },
 }
 
 export default config

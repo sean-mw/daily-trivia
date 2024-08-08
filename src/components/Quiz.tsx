@@ -1,7 +1,7 @@
 'use client'
 
 import Question from '@/types/question'
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useMemo } from 'react'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import {
   faAngleUp,
@@ -9,6 +9,7 @@ import {
   faAngleRight,
   faAngleDown,
 } from '@fortawesome/free-solid-svg-icons'
+import Button from './Button'
 
 type QuizProps = {
   questions: Question[]
@@ -34,9 +35,16 @@ const Quiz: React.FC<QuizProps> = ({ questions }) => {
     [currentQuestionIndex, questions, score]
   )
 
+  const currentAnswers = useMemo(() => {
+    const question = questions[currentQuestionIndex]
+    if (!question) return []
+    const answers = questions[currentQuestionIndex].answers
+    return answers.sort((a, b) => b.length - a.length)
+  }, [currentQuestionIndex, questions])
+
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
-      const arrowKeys = ['ArrowUp', 'ArrowLeft', 'ArrowRight', 'ArrowDown']
+      const arrowKeys = ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight']
       if (!arrowKeys.includes(event.key)) return
       event.preventDefault()
       const endOfQuiz = currentQuestionIndex >= questions.length
@@ -53,31 +61,32 @@ const Quiz: React.FC<QuizProps> = ({ questions }) => {
   }, [currentQuestionIndex, handleAnswerSubmit, questions, selectedAnswer])
 
   const answerButton = (answer: string) => {
-    let buttonClass =
-      'bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded h-10'
+    let buttonClass = 'w-full'
     if (selectedAnswer) {
       if (answer === questions[currentQuestionIndex].correctAnswer) {
-        buttonClass = 'bg-green-500 text-white font-bold py-2 px-4 rounded h-10'
+        buttonClass += ' bg-green-400'
       } else if (answer === selectedAnswer) {
-        buttonClass = 'bg-red-500 text-white font-bold py-2 px-4 rounded h-10'
+        buttonClass += ' bg-red-400'
       } else {
-        buttonClass = 'bg-gray-500 text-white font-bold py-2 px-4 rounded h-10'
+        buttonClass += ' bg-gray-200'
       }
+    } else {
+      buttonClass += ' hover:bg-gray-200'
     }
     return (
-      <button
-        className={buttonClass}
+      <Button
         onClick={() => !selectedAnswer && handleAnswerSubmit(answer)}
+        className={buttonClass}
         disabled={!!selectedAnswer}
       >
         {answer.toUpperCase()}
-      </button>
+      </Button>
     )
   }
 
   return (
-    <div className="flex min-h-screen flex-col items-center gap-10 py-20 px-10">
-      <h2 className="text-2xl font-bold">
+    <div className="flex min-h-screen flex-col items-center gap-10 py-10 px-5">
+      <h2 className="text-3xl font-bold">
         SCORE: {score} / {questions.length}
       </h2>
       {currentQuestionIndex < questions.length ? (
@@ -87,10 +96,10 @@ const Quiz: React.FC<QuizProps> = ({ questions }) => {
           </h2>
           <div className="relative grid grid-cols-3 grid-rows-3 gap-4">
             <div className="col-start-2 row-start-1 flex justify-center items-end">
-              {answerButton(questions[currentQuestionIndex].answers[0])}
+              {answerButton(currentAnswers[0])}
             </div>
             <div className="col-start-1 row-start-2 flex justify-end items-center">
-              {answerButton(questions[currentQuestionIndex].answers[1])}
+              {answerButton(currentAnswers[2])}
             </div>
             <div className="col-start-2 row-start-2 flex justify-center items-center">
               <div className="flex flex-col items-center">
@@ -119,23 +128,22 @@ const Quiz: React.FC<QuizProps> = ({ questions }) => {
               </div>
             </div>
             <div className="col-start-3 row-start-2 flex justify-start items-center">
-              {answerButton(questions[currentQuestionIndex].answers[2])}
+              {answerButton(currentAnswers[3])}
             </div>
             <div className="col-start-2 row-start-3 flex justify-center items-start">
-              {answerButton(questions[currentQuestionIndex].answers[3])}
+              {answerButton(currentAnswers[1])}
             </div>
           </div>
         </div>
       ) : (
-        <button
-          className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+        <Button
           onClick={() => {
             setCurrentQuestionIndex(0)
             setScore(0)
           }}
         >
           RESTART
-        </button>
+        </Button>
       )}
     </div>
   )
