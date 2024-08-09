@@ -10,6 +10,7 @@ import {
   faAngleDown,
 } from '@fortawesome/free-solid-svg-icons'
 import Button from './Button'
+import useBreakpoint, { Breakpoint } from '@/app/hooks/useBreakpoint'
 
 type QuizProps = {
   questions: Question[]
@@ -31,6 +32,7 @@ const Quiz: React.FC<QuizProps> = ({ questions }) => {
   const [timeRemaining, setTimeRemaining] = useState(TIME_LIMIT)
   const [timeColor, setTimeColor] = useState('text-black')
   const [quizState, setQuizState] = useState(QuizState.MENU)
+  const breakpoint = useBreakpoint()
 
   const handleAnswerSubmit = useCallback(
     (answer: string) => {
@@ -95,7 +97,8 @@ const Quiz: React.FC<QuizProps> = ({ questions }) => {
 
     const handleKeyDown = (event: KeyboardEvent) => {
       const arrowKeys = ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight']
-      if (!arrowKeys.includes(event.key)) return
+      if (breakpoint === Breakpoint.SMALL || !arrowKeys.includes(event.key))
+        return
       event.preventDefault()
       const index = arrowKeys.indexOf(event.key)
       handleAnswerSubmit(questions[currentQuestionIndex].answers[index])
@@ -107,6 +110,7 @@ const Quiz: React.FC<QuizProps> = ({ questions }) => {
       document.removeEventListener('keydown', handleKeyDown)
     }
   }, [
+    breakpoint,
     currentQuestionIndex,
     handleAnswerSubmit,
     questions,
@@ -162,46 +166,52 @@ const Quiz: React.FC<QuizProps> = ({ questions }) => {
           <div className="text-2xl font-bold text-center">
             {questions[currentQuestionIndex].question}
           </div>
-          <div className="relative grid grid-cols-3 grid-rows-3 gap-4">
-            <div className="col-start-2 row-start-1 flex justify-center items-end">
-              {answerButton(currentAnswers[0])}
-            </div>
-            <div className="col-start-1 row-start-2 flex justify-end items-center">
-              {answerButton(currentAnswers[2])}
-            </div>
-            <div className="col-start-2 row-start-2 flex justify-center items-center">
-              <div className="flex flex-col items-center">
-                <FontAwesomeIcon
-                  icon={faAngleUp}
-                  size="2x"
-                  className="text-black"
-                />
-                <div className="flex gap-10">
+          {breakpoint !== Breakpoint.SMALL ? (
+            <div className="relative grid grid-cols-3 grid-rows-3 gap-4">
+              <div className="col-start-2 row-start-1 flex justify-center items-end">
+                {answerButton(currentAnswers[0])}
+              </div>
+              <div className="col-start-1 row-start-2 flex justify-end items-center">
+                {answerButton(currentAnswers[2])}
+              </div>
+              <div className="col-start-2 row-start-2 flex justify-center items-center">
+                <div className="flex flex-col items-center">
                   <FontAwesomeIcon
-                    icon={faAngleLeft}
+                    icon={faAngleUp}
                     size="2x"
                     className="text-black"
                   />
+                  <div className="flex gap-10">
+                    <FontAwesomeIcon
+                      icon={faAngleLeft}
+                      size="2x"
+                      className="text-black"
+                    />
+                    <FontAwesomeIcon
+                      icon={faAngleRight}
+                      size="2x"
+                      className="text-black"
+                    />
+                  </div>
                   <FontAwesomeIcon
-                    icon={faAngleRight}
+                    icon={faAngleDown}
                     size="2x"
                     className="text-black"
                   />
                 </div>
-                <FontAwesomeIcon
-                  icon={faAngleDown}
-                  size="2x"
-                  className="text-black"
-                />
+              </div>
+              <div className="col-start-3 row-start-2 flex justify-start items-center">
+                {answerButton(currentAnswers[3])}
+              </div>
+              <div className="col-start-2 row-start-3 flex justify-center items-start">
+                {answerButton(currentAnswers[1])}
               </div>
             </div>
-            <div className="col-start-3 row-start-2 flex justify-start items-center">
-              {answerButton(currentAnswers[3])}
+          ) : (
+            <div className="flex flex-col gap-2">
+              {currentAnswers.map((answer) => answerButton(answer))}
             </div>
-            <div className="col-start-2 row-start-3 flex justify-center items-start">
-              {answerButton(currentAnswers[1])}
-            </div>
-          </div>
+          )}
           <div className={`text-xl font-bold`}>
             {questions.length - 1 - currentQuestionIndex} questions remaining
           </div>
