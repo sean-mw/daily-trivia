@@ -2,10 +2,26 @@ import prisma from '@/lib/prisma'
 import { NextRequest, NextResponse } from 'next/server'
 
 export async function PATCH(req: NextRequest) {
-  const { id, attempts, averageScore } = await req.json()
-  const questionGroup = await prisma.dailyQuestionGroup.update({
+  const { id, score } = await req.json()
+
+  const questionGroup = await prisma.dailyQuestionGroup.findUnique({
     where: { id },
-    data: { attempts, averageScore },
   })
-  return NextResponse.json(questionGroup)
+
+  if (!questionGroup) {
+    return NextResponse.json(
+      { error: 'Question group not found' },
+      { status: 404 }
+    )
+  }
+
+  const averageScore =
+    (questionGroup.averageScore * questionGroup.attempts + score) /
+    (questionGroup.attempts + 1)
+
+  const updatedQuestionGroup = await prisma.dailyQuestionGroup.update({
+    where: { id },
+    data: { attempts: questionGroup.attempts + 1, averageScore },
+  })
+  return NextResponse.json(updatedQuestionGroup)
 }

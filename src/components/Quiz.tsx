@@ -130,30 +130,13 @@ const Quiz: React.FC<QuizProps> = ({ questionGroup }) => {
   ])
 
   useEffect(() => {
-    const updateQuestionGroup = async (
-      averageScore: number,
-      attempts: number
-    ) => {
-      await axios.patch('/api/questionGroup', {
+    if (quizState === QuizState.RESULTS) {
+      axios.patch('/api/questionGroup', {
         id: questionGroup.id,
-        attempts,
-        averageScore,
+        score,
       })
     }
-
-    if (quizState === QuizState.RESULTS) {
-      const averageScore =
-        (questionGroup.averageScore * questionGroup.attempts + score) /
-        (questionGroup.attempts + 1)
-      updateQuestionGroup(averageScore, questionGroup.attempts + 1)
-    }
-  }, [
-    questionGroup.attempts,
-    questionGroup.averageScore,
-    questionGroup.id,
-    quizState,
-    score,
-  ])
+  }, [questionGroup.id, quizState, score])
 
   const answerButton = (answer: string) => {
     let buttonColor
