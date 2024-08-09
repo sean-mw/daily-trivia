@@ -21,7 +21,7 @@ enum QuizState {
   RESULTS,
 }
 
-const TIME_LIMIT = 30
+const TIME_LIMIT = 60
 
 const Quiz: React.FC<QuizProps> = ({ questions }) => {
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0)
