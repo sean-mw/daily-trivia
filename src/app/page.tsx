@@ -25,7 +25,7 @@ export default async function Game() {
 
   return (
     <main>
-      <Quiz questions={questionGroup.questions} />
+      <Quiz questionGroup={questionGroup} />
     </main>
   )
 }

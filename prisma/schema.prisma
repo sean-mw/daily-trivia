@@ -9,11 +9,13 @@ datasource db {
 }
 
 model DailyQuestionGroup {
-    id        String     @id @default(cuid())
-    day       Int
-    month     Int
-    year      Int
-    questions Question[]
+    id           String     @id @default(cuid())
+    day          Int
+    month        Int
+    year         Int
+    questions    Question[]
+    attempts     Int        @default(0)
+    averageScore Float      @default(0)
 
     @@unique([day, month, year], name: "day_month_year_unique")
 }

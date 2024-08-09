@@ -11,9 +11,11 @@ import {
 } from '@fortawesome/free-solid-svg-icons'
 import Button from './Button'
 import useBreakpoint, { Breakpoint } from '@/app/hooks/useBreakpoint'
+import { DailyQuestionGroup } from '@prisma/client'
+import axios from 'axios'
 
 type QuizProps = {
-  questions: Question[]
+  questionGroup: DailyQuestionGroup & { questions: Question[] }
 }
 
 enum QuizState {
@@ -24,7 +26,7 @@ enum QuizState {
 
 const TIME_LIMIT = 60
 
-const Quiz: React.FC<QuizProps> = ({ questions }) => {
+const Quiz: React.FC<QuizProps> = ({ questionGroup }) => {
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0)
   const [score, setScore] = useState(0)
   const [selectedAnswer, setSelectedAnswer] = useState<string>()
@@ -39,29 +41,36 @@ const Quiz: React.FC<QuizProps> = ({ questions }) => {
       if (quizState !== QuizState.PLAYING) return
       if (selectedAnswer) return
       setSelectedAnswer(answer)
-      const correctAnswer = questions[currentQuestionIndex].correctAnswer
+      const correctAnswer =
+        questionGroup.questions[currentQuestionIndex].correctAnswer
       if (answer === correctAnswer) {
         setScore(score + 1)
       }
       setTimeout(() => {
         setSelectedAnswer(undefined)
         const nextQuestionIndex = currentQuestionIndex + 1
-        if (nextQuestionIndex >= questions.length) {
+        if (nextQuestionIndex >= questionGroup.questions.length) {
           setQuizState(QuizState.RESULTS)
           return
         }
         setCurrentQuestionIndex(nextQuestionIndex)
       }, 1000)
     },
-    [currentQuestionIndex, questions, quizState, score, selectedAnswer]
+    [
+      currentQuestionIndex,
+      questionGroup.questions,
+      quizState,
+      score,
+      selectedAnswer,
+    ]
   )
 
   const currentAnswers = useMemo(() => {
-    const question = questions[currentQuestionIndex]
+    const question = questionGroup.questions[currentQuestionIndex]
     if (!question) return []
-    const answers = questions[currentQuestionIndex].answers
+    const answers = questionGroup.questions[currentQuestionIndex].answers
     return answers.sort((a, b) => b.length - a.length)
-  }, [currentQuestionIndex, questions])
+  }, [currentQuestionIndex, questionGroup.questions])
 
   useEffect(() => {
     if (quizState !== QuizState.PLAYING) return
@@ -90,7 +99,7 @@ const Quiz: React.FC<QuizProps> = ({ questions }) => {
     } else {
       setTimeColor('text-black')
     }
-  }, [timeRemaining, questions.length, quizState])
+  }, [timeRemaining, questionGroup.questions.length, quizState])
 
   useEffect(() => {
     if (quizState !== QuizState.PLAYING) return
@@ -101,7 +110,9 @@ const Quiz: React.FC<QuizProps> = ({ questions }) => {
         return
       event.preventDefault()
       const index = arrowKeys.indexOf(event.key)
-      handleAnswerSubmit(questions[currentQuestionIndex].answers[index])
+      handleAnswerSubmit(
+        questionGroup.questions[currentQuestionIndex].answers[index]
+      )
     }
 
     document.addEventListener('keydown', handleKeyDown)
@@ -113,15 +124,43 @@ const Quiz: React.FC<QuizProps> = ({ questions }) => {
     breakpoint,
     currentQuestionIndex,
     handleAnswerSubmit,
-    questions,
+    questionGroup.questions,
     quizState,
     selectedAnswer,
+  ])
+
+  useEffect(() => {
+    const updateQuestionGroup = async (
+      averageScore: number,
+      attempts: number
+    ) => {
+      await axios.patch('/api/questionGroup', {
+        id: questionGroup.id,
+        attempts,
+        averageScore,
+      })
+    }
+
+    if (quizState === QuizState.RESULTS) {
+      const averageScore =
+        (questionGroup.averageScore * questionGroup.attempts + score) /
+        (questionGroup.attempts + 1)
+      updateQuestionGroup(averageScore, questionGroup.attempts + 1)
+    }
+  }, [
+    questionGroup.attempts,
+    questionGroup.averageScore,
+    questionGroup.id,
+    quizState,
+    score,
   ])
 
   const answerButton = (answer: string) => {
     let buttonColor
     if (selectedAnswer) {
-      if (answer === questions[currentQuestionIndex].correctAnswer) {
+      if (
+        answer === questionGroup.questions[currentQuestionIndex].correctAnswer
+      ) {
         buttonColor = 'bg-green-400'
       } else if (answer === selectedAnswer) {
         buttonColor = 'bg-red-400'
@@ -164,7 +203,7 @@ const Quiz: React.FC<QuizProps> = ({ questions }) => {
             {timeRemaining}
           </div>
           <div className="text-2xl font-bold text-center">
-            {questions[currentQuestionIndex].question}
+            {questionGroup.questions[currentQuestionIndex].question}
           </div>
           {breakpoint !== Breakpoint.SMALL ? (
             <div className="relative grid grid-cols-3 grid-rows-3 gap-4">
@@ -213,25 +252,22 @@ const Quiz: React.FC<QuizProps> = ({ questions }) => {
             </div>
           )}
           <div className={`text-xl font-bold`}>
-            {questions.length - 1 - currentQuestionIndex} questions remaining
+            {questionGroup.questions.length - 1 - currentQuestionIndex}{' '}
+            questions remaining
           </div>
         </>
       ) : (
         <>
-          <h2 className="text-3xl font-bold">
-            Score: {score} / {questions.length}
-          </h2>
-          <Button
-            onClick={() => {
-              setCurrentQuestionIndex(0)
-              setScore(0)
-              setTimeStarted(new Date())
-              setTimeRemaining(TIME_LIMIT)
-              setQuizState(QuizState.PLAYING)
-            }}
-          >
-            RESTART
-          </Button>
+          <div className="text-3xl font-bold">
+            Score: {score} / {questionGroup.questions.length}
+          </div>
+          <div className="text-xl font-bold text-center">
+            {questionGroup.attempts} attempts have been made today. The average
+            score is {questionGroup.averageScore.toFixed(1)}.
+          </div>
+          <div className="text-xl font-bold text-center">
+            Come back tommorow for another set of questions!
+          </div>
         </>
       )}
     </div>
