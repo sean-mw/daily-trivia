@@ -15,7 +15,7 @@ model DailyQuestionGroup {
     year      Int
     questions Question[]
 
-    @@unique([month, day], name: "month_day_unique")
+    @@unique([day, month, year], name: "day_month_year_unique")
 }
 
 model Question {
