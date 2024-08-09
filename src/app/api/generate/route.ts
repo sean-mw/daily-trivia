@@ -6,6 +6,8 @@ import {
 } from '@/lib/question-group'
 import prisma from '@/lib/prisma'
 
+export const maxDuration = 300
+
 // Route for cron job to generate daily trivia questions for the next week.
 export async function GET(req: NextRequest) {
   if (

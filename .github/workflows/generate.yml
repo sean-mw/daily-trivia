@@ -1,0 +1,29 @@
+name: Generate Trivia Questions
+
+on:
+  schedule:
+    - cron: '0 0 * * *'
+  workflow_dispatch:
+
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Run generate script
+        run: |
+          echo "Running curl command..."
+          response=$(curl -s -w "\n%{http_code}" -X GET https://daily-trivia-pi.vercel.app/api/generate \
+          -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}")
+
+          # Separate the response body and the status code
+          http_body=$(echo "$response" | sed '$ d')
+          http_code=$(echo "$response" | tail -n1)
+
+          echo "Curl command executed. Response:"
+          echo "$http_body"
+
+          echo "HTTP Status Code:"
+          echo "$http_code"
