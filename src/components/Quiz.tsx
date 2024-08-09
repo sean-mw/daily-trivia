@@ -15,24 +15,43 @@ type QuizProps = {
   questions: Question[]
 }
 
+enum QuizState {
+  MENU,
+  PLAYING,
+  RESULTS,
+}
+
+const TIME_LIMIT = 30
+
 const Quiz: React.FC<QuizProps> = ({ questions }) => {
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0)
   const [score, setScore] = useState(0)
   const [selectedAnswer, setSelectedAnswer] = useState<string>()
+  const [timeStarted, setTimeStarted] = useState<Date>()
+  const [timeRemaining, setTimeRemaining] = useState(TIME_LIMIT)
+  const [timeColor, setTimeColor] = useState('text-black')
+  const [quizState, setQuizState] = useState(QuizState.MENU)
 
   const handleAnswerSubmit = useCallback(
     (answer: string) => {
+      if (quizState !== QuizState.PLAYING) return
+      if (selectedAnswer) return
       setSelectedAnswer(answer)
       const correctAnswer = questions[currentQuestionIndex].correctAnswer
       if (answer === correctAnswer) {
         setScore(score + 1)
       }
       setTimeout(() => {
-        setCurrentQuestionIndex(currentQuestionIndex + 1)
         setSelectedAnswer(undefined)
+        const nextQuestionIndex = currentQuestionIndex + 1
+        if (nextQuestionIndex >= questions.length) {
+          setQuizState(QuizState.RESULTS)
+          return
+        }
+        setCurrentQuestionIndex(nextQuestionIndex)
       }, 1000)
     },
-    [currentQuestionIndex, questions, score]
+    [currentQuestionIndex, questions, quizState, score, selectedAnswer]
   )
 
   const currentAnswers = useMemo(() => {
@@ -43,40 +62,73 @@ const Quiz: React.FC<QuizProps> = ({ questions }) => {
   }, [currentQuestionIndex, questions])
 
   useEffect(() => {
+    if (quizState !== QuizState.PLAYING) return
+
+    const interval = setInterval(() => {
+      if (!timeStarted) return
+
+      setTimeRemaining(
+        TIME_LIMIT -
+          Math.floor((new Date().getTime() - timeStarted.getTime()) / 1000)
+      )
+    }, 1000)
+
+    return () => {
+      clearInterval(interval)
+    }
+  }, [quizState, timeStarted])
+
+  useEffect(() => {
+    if (quizState !== QuizState.PLAYING) return
+
+    if (timeRemaining <= 0) {
+      setQuizState(QuizState.RESULTS)
+    } else if (timeRemaining <= 10) {
+      setTimeColor('text-red-600')
+    } else {
+      setTimeColor('text-black')
+    }
+  }, [timeRemaining, questions.length, quizState])
+
+  useEffect(() => {
+    if (quizState !== QuizState.PLAYING) return
+
     const handleKeyDown = (event: KeyboardEvent) => {
       const arrowKeys = ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight']
       if (!arrowKeys.includes(event.key)) return
       event.preventDefault()
-      const endOfQuiz = currentQuestionIndex >= questions.length
-      if (endOfQuiz || selectedAnswer) {
-        return
-      }
       const index = arrowKeys.indexOf(event.key)
       handleAnswerSubmit(questions[currentQuestionIndex].answers[index])
     }
+
     document.addEventListener('keydown', handleKeyDown)
+
     return () => {
       document.removeEventListener('keydown', handleKeyDown)
     }
-  }, [currentQuestionIndex, handleAnswerSubmit, questions, selectedAnswer])
+  }, [
+    currentQuestionIndex,
+    handleAnswerSubmit,
+    questions,
+    quizState,
+    selectedAnswer,
+  ])
 
   const answerButton = (answer: string) => {
-    let buttonClass = 'w-full'
+    let buttonColor
     if (selectedAnswer) {
       if (answer === questions[currentQuestionIndex].correctAnswer) {
-        buttonClass += ' bg-green-400'
+        buttonColor = 'bg-green-400'
       } else if (answer === selectedAnswer) {
-        buttonClass += ' bg-red-400'
+        buttonColor = 'bg-red-400'
       } else {
-        buttonClass += ' bg-gray-200'
+        buttonColor = 'bg-gray-200'
       }
-    } else {
-      buttonClass += ' hover:bg-gray-200'
     }
     return (
       <Button
         onClick={() => !selectedAnswer && handleAnswerSubmit(answer)}
-        className={buttonClass}
+        className={`w-full ${buttonColor}`}
         disabled={!!selectedAnswer}
       >
         {answer.toUpperCase()}
@@ -84,16 +136,32 @@ const Quiz: React.FC<QuizProps> = ({ questions }) => {
     )
   }
 
+  if (quizState === QuizState.MENU) {
+    return (
+      <div className="flex flex-col p-20 gap-10 items-center">
+        <div className="text-3xl font-bold">Daily Trivia</div>
+        <Button
+          onClick={() => {
+            setTimeStarted(new Date())
+            setQuizState(QuizState.PLAYING)
+          }}
+        >
+          START
+        </Button>
+      </div>
+    )
+  }
+
   return (
     <div className="flex min-h-screen flex-col items-center gap-10 py-10 px-5">
-      <h2 className="text-3xl font-bold">
-        SCORE: {score} / {questions.length}
-      </h2>
-      {currentQuestionIndex < questions.length ? (
-        <div className="flex flex-col items-center">
-          <h2 className="text-2xl font-bold">
+      {quizState === QuizState.PLAYING ? (
+        <>
+          <div className={`text-6xl font-bold ${timeColor}`}>
+            {timeRemaining}
+          </div>
+          <div className="text-2xl font-bold text-center">
             {questions[currentQuestionIndex].question}
-          </h2>
+          </div>
           <div className="relative grid grid-cols-3 grid-rows-3 gap-4">
             <div className="col-start-2 row-start-1 flex justify-center items-end">
               {answerButton(currentAnswers[0])}
@@ -134,16 +202,27 @@ const Quiz: React.FC<QuizProps> = ({ questions }) => {
               {answerButton(currentAnswers[1])}
             </div>
           </div>
-        </div>
+          <div className={`text-xl font-bold`}>
+            {questions.length - 1 - currentQuestionIndex} questions remaining
+          </div>
+        </>
       ) : (
-        <Button
-          onClick={() => {
-            setCurrentQuestionIndex(0)
-            setScore(0)
-          }}
-        >
-          RESTART
-        </Button>
+        <>
+          <h2 className="text-3xl font-bold">
+            Score: {score} / {questions.length}
+          </h2>
+          <Button
+            onClick={() => {
+              setCurrentQuestionIndex(0)
+              setScore(0)
+              setTimeStarted(new Date())
+              setTimeRemaining(TIME_LIMIT)
+              setQuizState(QuizState.PLAYING)
+            }}
+          >
+            RESTART
+          </Button>
+        </>
       )}
     </div>
   )
