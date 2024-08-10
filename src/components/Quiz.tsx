@@ -249,7 +249,7 @@ const Quiz: React.FC<QuizProps> = ({ questionGroup }) => {
             score is {questionGroup.averageScore.toFixed(1)}.
           </div>
           <div className="text-xl font-bold text-center">
-            Come back tommorow for another set of questions!
+            Come back tomorrow for another set of questions!
           </div>
         </>
       )}
