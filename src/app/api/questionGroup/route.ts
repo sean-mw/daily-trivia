@@ -1,5 +1,17 @@
+import { getCurrentDayMonthYear } from '@/lib/date-util'
 import prisma from '@/lib/prisma'
 import { NextRequest, NextResponse } from 'next/server'
+
+export async function GET() {
+  const { day, month, year } = getCurrentDayMonthYear('America/Los_Angeles')
+
+  const questionGroup = await prisma.dailyQuestionGroup.findUnique({
+    where: { day_month_year_unique: { year, month, day } },
+    include: { questions: true },
+  })
+
+  return NextResponse.json(questionGroup)
+}
 
 export async function PATCH(req: NextRequest) {
   const { id, score } = await req.json()

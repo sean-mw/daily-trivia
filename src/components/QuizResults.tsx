@@ -1,3 +1,5 @@
+'use client'
+
 import Question from '@/types/question'
 import { DailyQuestionGroup } from '@prisma/client'
 import axios from 'axios'

@@ -1,5 +1,3 @@
-'use client'
-
 import Question from '@/types/question'
 import { useState, useCallback } from 'react'
 import { DailyQuestionGroup } from '@prisma/client'

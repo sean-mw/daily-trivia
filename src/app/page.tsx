@@ -1,31 +1,35 @@
+'use client'
+
 import Quiz from '@/components/Quiz'
-import prisma from '@/lib/prisma'
+import { useEffect, useState } from 'react'
+import Question from '@/types/question'
+import { DailyQuestionGroup } from '@prisma/client'
+import axios from 'axios'
 
-const options: Intl.DateTimeFormatOptions = {
-  timeZone: 'America/Los_Angeles',
-  year: 'numeric',
-  month: 'numeric',
-  day: 'numeric',
-}
-const formatter = new Intl.DateTimeFormat('en-US', options)
+export default function Game() {
+  const [questionGroup, setQuestionGroup] = useState<
+    DailyQuestionGroup & { questions: Question[] }
+  >()
 
-export default async function Game() {
-  const now = new Date()
-  const [month, day, year] = formatter.format(now).split('/').map(Number)
+  useEffect(() => {
+    const getQuestionGroup = async () => {
+      const questionGroup = await axios.get('/api/questionGroup')
+      setQuestionGroup(questionGroup.data)
+    }
 
-  const questionGroup = await prisma.dailyQuestionGroup.findUnique({
-    where: { day_month_year_unique: { year, month: month - 1, day } }, // subtract 1 so that month is 0-indexed
-    include: { questions: true },
-  })
-
-  if (!questionGroup) {
-    // TODO: Handle this case (create error page?)
-    return <div>No question group found</div>
-  }
+    getQuestionGroup()
+  }, [])
 
   return (
     <main>
-      <Quiz questionGroup={questionGroup} />
+      {!!questionGroup ? (
+        <Quiz questionGroup={questionGroup} />
+      ) : (
+        <div className="flex flex-col justify-center items-center min-h-screen">
+          <div className="animate-spin rounded-full h-12 w-12 border-t-4 border-black" />
+          <p className="mt-4 text-lg">Loading questions, please wait...</p>
+        </div>
+      )}
     </main>
   )
 }
