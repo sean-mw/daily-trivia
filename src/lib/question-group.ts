@@ -1,4 +1,3 @@
-import Question from '@/types/question'
 import openai from './openai'
 import prisma from './prisma'
 
@@ -60,9 +59,11 @@ export async function generateQuestionGroup(date: Date) {
   })
 
   const triviaQuestions = response.choices[0]?.message?.content || ''
-  const questionsArray: Question[] = JSON.parse(
-    triviaQuestions.replace(/```/g, '')
-  )
+  const questionsArray: {
+    question: string
+    answers: string[]
+    correctAnswer: string
+  }[] = JSON.parse(triviaQuestions.replace(/```/g, ''))
 
   return await prisma.dailyQuestionGroup.create({
     data: {
@@ -70,11 +71,7 @@ export async function generateQuestionGroup(date: Date) {
       month: date.getMonth(),
       year: date.getFullYear(),
       questions: {
-        create: questionsArray.map((question) => ({
-          question: question.question,
-          answers: question.answers,
-          correctAnswer: question.correctAnswer,
-        })),
+        create: questionsArray,
       },
     },
   })

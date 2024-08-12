@@ -1,5 +1,4 @@
 import useBreakpoint, { Breakpoint } from '@/app/hooks/useBreakpoint'
-import Question from '@/types/question'
 import Button from './Button'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import {
@@ -9,6 +8,7 @@ import {
   faAngleDown,
 } from '@fortawesome/free-solid-svg-icons'
 import { useCallback, useEffect, useState } from 'react'
+import { Question } from '@prisma/client'
 
 const ANSWER_DELAY = 1000
 const ARROW_KEYS = ['ArrowUp', 'ArrowLeft', 'ArrowRight', 'ArrowDown']

@@ -2,8 +2,7 @@
 
 import Quiz from '@/components/Quiz'
 import { useEffect, useState } from 'react'
-import Question from '@/types/question'
-import { DailyQuestionGroup } from '@prisma/client'
+import { DailyQuestionGroup, Question } from '@prisma/client'
 import axios from 'axios'
 
 export default function Game() {
@@ -27,7 +26,9 @@ export default function Game() {
       ) : (
         <div className="flex flex-col justify-center items-center min-h-screen">
           <div className="animate-spin rounded-full h-12 w-12 border-t-4 border-black" />
-          <p className="mt-4 text-lg">Loading questions, please wait...</p>
+          <p className="mt-4 text-lg font-bold">
+            Loading questions, please wait...
+          </p>
         </div>
       )}
     </main>

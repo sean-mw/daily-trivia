@@ -1,6 +1,5 @@
-import Question from '@/types/question'
 import { useState, useCallback } from 'react'
-import { DailyQuestionGroup } from '@prisma/client'
+import { DailyQuestionGroup, Question } from '@prisma/client'
 import QuizMenu from './QuizMenu'
 import QuizResults from './QuizResults'
 import QuizQuestion from './QuizQuestion'

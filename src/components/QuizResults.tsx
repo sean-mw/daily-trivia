@@ -1,7 +1,6 @@
 'use client'
 
-import Question from '@/types/question'
-import { DailyQuestionGroup } from '@prisma/client'
+import { DailyQuestionGroup, Question } from '@prisma/client'
 import axios from 'axios'
 import { useEffect } from 'react'
 
