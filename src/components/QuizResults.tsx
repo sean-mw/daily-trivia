@@ -23,8 +23,8 @@ const QuizResults: React.FC<QuizResultsProps> = ({ score, questionGroup }) => {
         Score: {score} / {questionGroup.questions.length}
       </div>
       <div className="text-xl font-bold text-center">
-        {questionGroup.attempts} attempts have been made today. The average
-        score is {questionGroup.averageScore.toFixed(1)}.
+        The average score for today is {questionGroup.averageScore.toFixed(1)}{' '}
+        across {questionGroup.attempts} users.
       </div>
       <div className="text-xl font-bold text-center">
         Come back tomorrow for another set of questions!
