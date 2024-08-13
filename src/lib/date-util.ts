@@ -4,7 +4,10 @@ export function addDays(date: Date, days: number): Date {
   return result
 }
 
-export function getCurrentDayMonthYear(timeZone: string): {
+export function getDayMonthYear(
+  date: Date,
+  timeZone: string
+): {
   day: number
   month: number
   year: number
@@ -16,7 +19,6 @@ export function getCurrentDayMonthYear(timeZone: string): {
     day: 'numeric',
   }
   const formatter = new Intl.DateTimeFormat('en-US', options)
-  const now = new Date()
-  const [month, day, year] = formatter.format(now).split('/').map(Number)
+  const [month, day, year] = formatter.format(date).split('/').map(Number)
   return { day, month: month - 1, year } // subtract 1 so that month is 0-indexed
 }
