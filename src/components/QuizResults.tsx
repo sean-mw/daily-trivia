@@ -1,5 +1,6 @@
 'use client'
 
+import useBreakpoint, { Breakpoint } from '@/app/hooks/useBreakpoint'
 import { DailyQuestionGroup, Question } from '@prisma/client'
 import axios from 'axios'
 import { useEffect } from 'react'
@@ -10,6 +11,10 @@ type QuizResultsProps = {
 }
 
 const QuizResults: React.FC<QuizResultsProps> = ({ score, questionGroup }) => {
+  const breakpoint = useBreakpoint()
+  const scoreSize = breakpoint === Breakpoint.SMALL ? 'text-4xl' : 'text-6xl'
+  const textSize = breakpoint === Breakpoint.SMALL ? 'text-2xl' : 'text-4xl'
+
   useEffect(() => {
     axios.patch('/api/questionGroup', {
       id: questionGroup.id,
@@ -18,16 +23,22 @@ const QuizResults: React.FC<QuizResultsProps> = ({ score, questionGroup }) => {
   }, [questionGroup.id, score])
 
   return (
-    <div className="flex min-h-screen flex-col items-center gap-10 py-10 px-5">
-      <div className="text-3xl font-bold">
+    <div className="flex flex-col h-screen items-center justify-center gap-10 px-5 py-10">
+      <div className={`${scoreSize} font-bold`}>
         Score: {score} / {questionGroup.questions.length}
       </div>
-      <div className="text-xl font-bold text-center">
-        The average score for today is {questionGroup.averageScore.toFixed(1)}{' '}
-        across {questionGroup.attempts} users.
-      </div>
-      <div className="text-xl font-bold text-center">
-        Come back tomorrow for another set of questions!
+      <div className="gap-5">
+        <div className={`${textSize} text-center`}>
+          The average score for today is{' '}
+          <span className="font-bold">
+            {questionGroup.averageScore.toFixed(1)}{' '}
+          </span>
+          across <span className="font-bold">{questionGroup.attempts} </span>
+          users.
+        </div>
+        <div className={`${textSize} text-center`}>
+          Come back tomorrow for another set of questions!
+        </div>
       </div>
     </div>
   )

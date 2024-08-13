@@ -1,24 +1,19 @@
 import useBreakpoint, { Breakpoint } from '@/app/hooks/useBreakpoint'
 import Button from './Button'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import {
-  faAngleUp,
-  faAngleLeft,
-  faAngleRight,
-  faAngleDown,
-} from '@fortawesome/free-solid-svg-icons'
+
 import { useCallback, useEffect, useState } from 'react'
 import { Question } from '@prisma/client'
+import ArrowDiamond from './ArrowDiamond'
 
 const ANSWER_DELAY = 1000
 const ARROW_KEYS = ['ArrowUp', 'ArrowLeft', 'ArrowRight', 'ArrowDown']
 
-type QuizQuestionProps = {
+type QuizAnswersProps = {
   question: Question
   onAnswer: (answer: string) => void
 }
 
-const QuizQuestion: React.FC<QuizQuestionProps> = ({ question, onAnswer }) => {
+const QuizAnswers: React.FC<QuizAnswersProps> = ({ question, onAnswer }) => {
   const [selectedAnswer, setSelectedAnswer] = useState<string>()
   const breakpoint = useBreakpoint()
 
@@ -79,7 +74,6 @@ const QuizQuestion: React.FC<QuizQuestionProps> = ({ question, onAnswer }) => {
 
   return (
     <>
-      <div className="text-2xl font-bold text-center">{question.question}</div>
       {breakpoint !== Breakpoint.SMALL ? (
         <div className="relative grid grid-cols-3 grid-rows-3 gap-4">
           <div className="col-start-2 row-start-1 flex justify-center items-end">
@@ -89,30 +83,7 @@ const QuizQuestion: React.FC<QuizQuestionProps> = ({ question, onAnswer }) => {
             {answerButton(question.answers[1])}
           </div>
           <div className="col-start-2 row-start-2 flex justify-center items-center">
-            <div className="flex flex-col items-center">
-              <FontAwesomeIcon
-                icon={faAngleUp}
-                size="2x"
-                className="text-black"
-              />
-              <div className="flex gap-10">
-                <FontAwesomeIcon
-                  icon={faAngleLeft}
-                  size="2x"
-                  className="text-black"
-                />
-                <FontAwesomeIcon
-                  icon={faAngleRight}
-                  size="2x"
-                  className="text-black"
-                />
-              </div>
-              <FontAwesomeIcon
-                icon={faAngleDown}
-                size="2x"
-                className="text-black"
-              />
-            </div>
+            <ArrowDiamond />
           </div>
           <div className="col-start-3 row-start-2 flex justify-start items-center">
             {answerButton(question.answers[2])}
@@ -122,7 +93,7 @@ const QuizQuestion: React.FC<QuizQuestionProps> = ({ question, onAnswer }) => {
           </div>
         </div>
       ) : (
-        <div className="flex flex-col gap-2">
+        <div className="flex flex-col gap-2 w-full">
           {question.answers.map((answer) => answerButton(answer))}
         </div>
       )}
@@ -130,4 +101,4 @@ const QuizQuestion: React.FC<QuizQuestionProps> = ({ question, onAnswer }) => {
   )
 }
 
-export default QuizQuestion
+export default QuizAnswers

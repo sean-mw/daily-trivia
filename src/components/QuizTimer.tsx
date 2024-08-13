@@ -1,3 +1,4 @@
+import useBreakpoint, { Breakpoint } from '@/app/hooks/useBreakpoint'
 import { useEffect, useState } from 'react'
 
 const TIME_LIMIT = 60
@@ -10,6 +11,8 @@ type QuizTimerProps = {
 const QuizTimer: React.FC<QuizTimerProps> = ({ onTimeExpired }) => {
   const [timeRemaining, setTimeRemaining] = useState(TIME_LIMIT)
   const [timeColor, setTimeColor] = useState('text-black')
+  const breakpoint = useBreakpoint()
+  const timerSize = breakpoint === Breakpoint.SMALL ? 'text-6xl' : 'text-8xl'
 
   useEffect(() => {
     const timeStarted = new Date()
@@ -37,7 +40,7 @@ const QuizTimer: React.FC<QuizTimerProps> = ({ onTimeExpired }) => {
   }, [timeRemaining, onTimeExpired])
 
   return (
-    <div className={`text-6xl font-bold ${timeColor}`}>{timeRemaining}</div>
+    <div className={`${timerSize} font-bold ${timeColor}`}>{timeRemaining}</div>
   )
 }
 

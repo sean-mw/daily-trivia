@@ -5,7 +5,7 @@ const Button: React.FC<React.ButtonHTMLAttributes<HTMLButtonElement>> = ({
   ...props
 }) => {
   const buttonClass = [
-    'border-black focus:border-black border-solid border-2 rounded-lg font-bold py-2 px-4 text-s break-words',
+    'border-black focus:border-black border-solid border-2 rounded-lg font-bold py-4 px-6 text-xl break-words',
     disabled ? 'cursor-default' : 'hover:bg-gray-200',
     className,
   ].join(' ')
