@@ -55,7 +55,7 @@ export async function generateQuestionGroup(date: Date) {
         ].join('\n'),
       },
     ],
-    model: 'gpt-4',
+    model: 'gpt-4o-mini',
   })
 
   const triviaQuestions = response.choices[0]?.message?.content || ''
