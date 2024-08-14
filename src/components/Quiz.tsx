@@ -52,7 +52,7 @@ const Quiz: React.FC<QuizProps> = ({ questionGroup }) => {
       )
     case QuizState.PLAYING:
       return (
-        <div className={`flex flex-col h-screen p-5 ${gap}`}>
+        <div className={`flex flex-col h-[calc(100dvh)] px-5 py-10 ${gap}`}>
           <div
             className={`flex flex-col flex-grow justify-evenly items-center ${gap}`}
           >

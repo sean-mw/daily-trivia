@@ -24,7 +24,7 @@ export default function Game() {
       {!!questionGroup ? (
         <Quiz questionGroup={questionGroup} />
       ) : (
-        <div className="flex flex-col justify-center items-center min-h-screen">
+        <div className="flex flex-col justify-center items-center h-[calc(100dvh)]">
           <div className="animate-spin rounded-full h-12 w-12 border-t-4 border-black" />
           <p className="mt-4 text-lg font-bold">
             Loading questions, please wait...

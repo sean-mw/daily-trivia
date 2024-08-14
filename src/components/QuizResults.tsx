@@ -23,7 +23,7 @@ const QuizResults: React.FC<QuizResultsProps> = ({ score, questionGroup }) => {
   }, [questionGroup.id, score])
 
   return (
-    <div className="flex flex-col h-screen items-center justify-center gap-10 px-5 py-10">
+    <div className="flex flex-col h-[calc(100dvh)] items-center justify-center gap-10 px-5 py-10">
       <div className={`${scoreSize} font-bold`}>
         Score: {score} / {questionGroup.questions.length}
       </div>
