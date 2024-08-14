@@ -9,8 +9,7 @@ type QuizTimerProps = {
 }
 
 const QuizTimer: React.FC<QuizTimerProps> = ({ onTimeExpired }) => {
-  const [seconds, setSeconds] = useState(TIME_LIMIT % 60)
-  const [minutes, setMinutes] = useState(Math.floor(TIME_LIMIT / 60))
+  const [timeRemaining, setTimeRemaining] = useState(TIME_LIMIT)
   const [timeColor, setTimeColor] = useState('text-black')
   const breakpoint = useBreakpoint()
   const timerSize = breakpoint === Breakpoint.SMALL ? 'text-6xl' : 'text-8xl'
@@ -22,12 +21,7 @@ const QuizTimer: React.FC<QuizTimerProps> = ({ onTimeExpired }) => {
       const elapsedSeconds = Math.floor(
         (new Date().getTime() - timeStarted.getTime()) / 1000
       )
-      const totalRemainingSeconds = Math.max(0, TIME_LIMIT - elapsedSeconds)
-      const minutesRemaining = Math.floor(totalRemainingSeconds / 60)
-      const secondsRemaining = totalRemainingSeconds % 60
-
-      setMinutes(minutesRemaining)
-      setSeconds(secondsRemaining)
+      setTimeRemaining(TIME_LIMIT - elapsedSeconds)
     }, 1000)
 
     return () => {
@@ -36,22 +30,17 @@ const QuizTimer: React.FC<QuizTimerProps> = ({ onTimeExpired }) => {
   }, [])
 
   useEffect(() => {
-    const secondsRemaining = minutes * 60 + seconds
-    if (secondsRemaining <= 0) {
+    if (timeRemaining <= 0) {
       onTimeExpired()
-    } else if (secondsRemaining <= TIME_WARNING) {
+    } else if (timeRemaining <= TIME_WARNING) {
       setTimeColor('text-red-600')
     } else {
       setTimeColor('text-black')
     }
-  }, [minutes, seconds, onTimeExpired])
+  }, [timeRemaining, onTimeExpired])
 
   return (
-    <div
-      className={`${timerSize} font-bold font-mono ${timeColor} border-black border-solid border-2 rounded-lg py-2 px-4`}
-    >
-      {`${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`}
-    </div>
+    <div className={`${timerSize} font-bold ${timeColor}`}>{timeRemaining}</div>
   )
 }
 
