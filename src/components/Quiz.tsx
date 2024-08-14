@@ -21,8 +21,8 @@ const Quiz: React.FC<QuizProps> = ({ questionGroup }) => {
   const [score, setScore] = useState(0)
   const [quizState, setQuizState] = useState(QuizState.MENU)
   const breakpoint = useBreakpoint()
-  const questionSize = breakpoint === Breakpoint.SMALL ? 'text-2xl' : 'text-4xl'
-  const gap = breakpoint === Breakpoint.SMALL ? 'gap-5' : 'gap-10'
+  const questionSize = breakpoint === Breakpoint.SMALL ? 'text-4xl' : 'text-6xl'
+  const gap = breakpoint === Breakpoint.SMALL ? 'gap-4' : 'gap-8'
 
   const onAnswer = useCallback(
     (answer: string) => {
